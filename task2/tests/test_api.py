@@ -15,34 +15,33 @@ from routes.file_route import Handler
 def cli(event_loop, aiohttp_client):
     app = web.Application()
     handler = Handler()
-    app.add_routes([
-        web.get('/file', handler.download),
-        web.post('/file', handler.upload)
-    ])
+    app.add_routes(
+        [web.get("/file", handler.download), web.post("/file", handler.upload)]
+    )
     return event_loop.run_until_complete(aiohttp_client(app))
 
 
 @pytest.mark.asyncio
 async def test_upload(cli):
     with patch("builtins.open"):
-        resp = await cli.post('/file', data='TEST DATA')
+        resp = await cli.post("/file", data="TEST DATA")
         assert resp.status == 201
-        assert await resp.text() == 'Done'
+        assert await resp.text() == "Done"
 
 
 @pytest.mark.asyncio
 async def test_no_file(cli):
-    resp = await cli.get('/file')
+    resp = await cli.get("/file")
     assert resp.status == 404
 
 
 @pytest.mark.asyncio
 async def test_download(cli):
     with (
-        patch('os.path.isfile', lambda path: True),
-        patch("builtins.open", mock_open(read_data="TEST DATA"))
+        patch("os.path.isfile", lambda path: True),
+        patch("builtins.open", mock_open(read_data="TEST DATA")),
     ):
-        resp = await cli.get('/file')
+        resp = await cli.get("/file")
         text = await resp.text()
         assert text == "TEST DATA"
         assert resp.status == 200
