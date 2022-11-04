@@ -1,0 +1,1 @@
+python -m aiohttp.web -H localhost -P 5000 api:init_func
